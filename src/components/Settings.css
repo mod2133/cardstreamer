@@ -1,0 +1,88 @@
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.settings-panel {
+  background: #2a2a2a;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.settings-panel h2 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.settings-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #444;
+}
+
+.settings-section:last-of-type {
+  border-bottom: none;
+}
+
+.settings-section label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.settings-section strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.help-text {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.settings-actions button {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.settings-actions button.primary {
+  background: #646cff;
+}
+
+.settings-actions button.primary:hover {
+  background: #535bf2;
+}
+
+.settings-actions button.danger {
+  background: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.settings-actions button.danger:hover {
+  background: #ff5252;
+}

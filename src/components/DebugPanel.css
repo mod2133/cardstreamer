@@ -1,0 +1,89 @@
+.debug-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a1a;
+  border-top: 2px solid #444;
+  z-index: 999;
+  max-height: 50vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.debug-header {
+  padding: 0.75rem 1rem;
+  background: #2a2a2a;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  font-weight: 600;
+  border-bottom: 1px solid #444;
+}
+
+.debug-header:hover {
+  background: #333;
+}
+
+.debug-toggle {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.debug-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.debug-actions {
+  padding: 0.75rem 1rem;
+  background: #2a2a2a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #444;
+}
+
+.clear-button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  background: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.clear-button:hover {
+  background: #ff5252;
+}
+
+.log-count {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.debug-logs {
+  margin: 0;
+  padding: 1rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.75rem;
+  color: #aaa;
+  background: #1a1a1a;
+  overflow-y: auto;
+  flex: 1;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.debug-panel:not(.expanded) .debug-content {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .debug-logs {
+    font-size: 0.65rem;
+  }
+}
