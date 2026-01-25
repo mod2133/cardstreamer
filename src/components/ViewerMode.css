@@ -1,7 +1,7 @@
 .viewer-mode {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 56px);
+  min-height: calc(100vh - 56px);
   background: #000;
 }
 
@@ -93,6 +93,59 @@
   100% { transform: rotate(360deg); }
 }
 
+.cards-section {
+  background: #1c1c1e;
+  padding: 1.5rem;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.cards-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c2c2e;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.card-confidence {
+  font-size: 0.85rem;
+  color: #8e8e93;
+  font-variant-numeric: tabular-nums;
+}
+
+.no-cards-message {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.no-cards-message p {
+  color: #8e8e93;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
 @media (max-width: 600px) {
   .viewer-timestamp {
     font-size: 0.75rem;
@@ -101,5 +154,21 @@
 
   .viewer-placeholder p:first-child {
     font-size: 1rem;
+  }
+
+  .cards-section {
+    padding: 1rem;
+  }
+
+  .card-item {
+    padding: 0.875rem;
+  }
+
+  .card-name {
+    font-size: 0.9rem;
+  }
+
+  .card-confidence {
+    font-size: 0.8rem;
   }
 }

@@ -12,12 +12,14 @@ export default function CameraMode() {
   const [lastCapture, setLastCapture] = useState(null);
   const [autoCapture, setAutoCapture] = useState(storage.getAutoCapture());
   const [captureInterval, setCaptureInterval] = useState(storage.getCaptureInterval());
+  const [cardDetection, setCardDetection] = useState(storage.getCardDetection());
   const [countdown, setCountdown] = useState(null);
   const intervalRef = useRef(null);
   const countdownRef = useRef(null);
   const nextCaptureTimeRef = useRef(null);
   const captureIntervalRef = useRef(captureInterval);
   const autoCaptureRef = useRef(autoCapture);
+  const cardDetectionRef = useRef(cardDetection);
 
   // Keep refs in sync
   useEffect(() => {
@@ -28,11 +30,16 @@ export default function CameraMode() {
     autoCaptureRef.current = autoCapture;
   }, [autoCapture]);
 
+  useEffect(() => {
+    cardDetectionRef.current = cardDetection;
+  }, [cardDetection]);
+
   // Sync settings from storage periodically
   useEffect(() => {
     const syncInterval = setInterval(() => {
       const newAutoCapture = storage.getAutoCapture();
       const newCaptureInterval = storage.getCaptureInterval();
+      const newCardDetection = storage.getCardDetection();
 
       if (newAutoCapture !== autoCapture) {
         debugLogger.log('CameraMode', 'Auto capture setting synced from storage', {
@@ -49,10 +56,18 @@ export default function CameraMode() {
         });
         setCaptureInterval(newCaptureInterval);
       }
+
+      if (newCardDetection !== cardDetection) {
+        debugLogger.log('CameraMode', 'Card detection setting synced from storage', {
+          old: cardDetection,
+          new: newCardDetection
+        });
+        setCardDetection(newCardDetection);
+      }
     }, 500);
 
     return () => clearInterval(syncInterval);
-  }, [autoCapture, captureInterval]);
+  }, [autoCapture, captureInterval, cardDetection]);
 
   useEffect(() => {
     debugLogger.log('CameraMode', 'Initializing camera');
@@ -146,21 +161,27 @@ export default function CameraMode() {
 
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
       const timestamp = new Date().toISOString();
+      const detectCards = cardDetectionRef.current;
 
       debugLogger.log('CameraMode', 'Image captured', {
         timestamp,
         size: imageData.length,
-        sizeKB: Math.round(imageData.length / 1024)
+        sizeKB: Math.round(imageData.length / 1024),
+        detectCards
       });
 
-      await api.uploadImage(imageData, timestamp);
+      const response = await api.uploadImage(imageData, timestamp, detectCards);
 
       setLastCapture({
         timestamp,
         image: imageData
       });
 
-      debugLogger.log('CameraMode', 'Image uploaded successfully');
+      debugLogger.log('CameraMode', 'Image uploaded successfully', {
+        detectionEnabled: detectCards,
+        detectionSuccess: response.detection?.success,
+        cardsDetected: response.detection?.cards?.length || 0
+      });
     } catch (err) {
       debugLogger.log('CameraMode', 'Capture error', { error: err.message });
       alert('Failed to capture/upload image: ' + err.message);

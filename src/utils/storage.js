@@ -6,7 +6,8 @@ const STORAGE_KEYS = {
   MODE: 'mode',
   AUTO_CAPTURE: 'auto_capture',
   CAPTURE_INTERVAL: 'capture_interval',
-  VIEWER_TIMEOUT: 'viewer_timeout'
+  VIEWER_TIMEOUT: 'viewer_timeout',
+  CARD_DETECTION: 'card_detection'
 };
 
 export const storage = {
@@ -74,5 +75,18 @@ export const storage = {
   setViewerTimeout(seconds) {
     localStorage.setItem(STORAGE_KEYS.VIEWER_TIMEOUT, seconds.toString());
     debugLogger.log('Storage', 'Set viewer timeout', { seconds });
+  },
+
+  // Card detection
+  getCardDetection() {
+    const value = localStorage.getItem(STORAGE_KEYS.CARD_DETECTION);
+    const result = value === 'true';
+    debugLogger.log('Storage', 'Get card detection', { value, result });
+    return result;
+  },
+
+  setCardDetection(enabled) {
+    localStorage.setItem(STORAGE_KEYS.CARD_DETECTION, enabled.toString());
+    debugLogger.log('Storage', 'Set card detection', { enabled });
   }
 };

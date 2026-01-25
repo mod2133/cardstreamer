@@ -8,6 +8,7 @@ export default function Settings({ onClose, onModeChange }) {
   const [autoCapture, setAutoCapture] = useState(storage.getAutoCapture());
   const [captureInterval, setCaptureInterval] = useState(storage.getCaptureInterval());
   const [viewerTimeout, setViewerTimeout] = useState(storage.getViewerTimeout());
+  const [cardDetection, setCardDetection] = useState(storage.getCardDetection());
   const [showDebugLogs, setShowDebugLogs] = useState(false);
   const [logs, setLogs] = useState(debugLogger.getFormattedLogs());
 
@@ -16,7 +17,8 @@ export default function Settings({ onClose, onModeChange }) {
       mode,
       autoCapture,
       captureInterval,
-      viewerTimeout
+      viewerTimeout,
+      cardDetection
     });
 
     const interval = setInterval(() => {
@@ -54,6 +56,13 @@ export default function Settings({ onClose, onModeChange }) {
     debugLogger.log('Settings', 'Viewer timeout changed', { seconds: value });
   };
 
+  const handleCardDetectionToggle = () => {
+    const newValue = !cardDetection;
+    setCardDetection(newValue);
+    storage.setCardDetection(newValue);
+    debugLogger.log('Settings', 'Card detection toggled', { enabled: newValue });
+  };
+
   const handleClearLogs = () => {
     debugLogger.clear();
     setLogs('');
@@ -80,6 +89,20 @@ export default function Settings({ onClose, onModeChange }) {
                 <option value="viewer">Viewer</option>
                 <option value="camera">Camera</option>
               </select>
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <div className="settings-row">
+              <span className="settings-label">Card Detection</span>
+              <label className="ios-switch">
+                <input
+                  type="checkbox"
+                  checked={cardDetection}
+                  onChange={handleCardDetectionToggle}
+                />
+                <span className="slider"></span>
+              </label>
             </div>
           </div>
 

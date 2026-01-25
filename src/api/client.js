@@ -29,11 +29,12 @@ export const api = {
     }
   },
 
-  async uploadImage(imageData, timestamp) {
+  async uploadImage(imageData, timestamp, detectCards = false) {
     debugLogger.log('API', 'Uploading image', {
       timestamp,
       imageSize: imageData.length,
-      imageSizeKB: Math.round(imageData.length / 1024)
+      imageSizeKB: Math.round(imageData.length / 1024),
+      detectCards
     });
 
     try {
@@ -44,14 +45,18 @@ export const api = {
         },
         body: JSON.stringify({
           image: imageData,
-          timestamp
+          timestamp,
+          detectCards
         })
       });
 
       const data = await response.json();
       debugLogger.log('API', 'Image upload response', {
         status: response.status,
-        success: data.success
+        success: data.success,
+        hasDetection: !!data.detection,
+        detectionSuccess: data.detection?.success,
+        cardCount: data.detection?.cards?.length || 0
       });
 
       return data;
@@ -71,7 +76,10 @@ export const api = {
       debugLogger.log('API', 'Latest image response', {
         status: response.status,
         hasImage: !!data.image,
-        timestamp: data.timestamp
+        timestamp: data.timestamp,
+        hasDetection: !!data.detection,
+        detectionSuccess: data.detection?.success,
+        cardCount: data.detection?.cards?.length || 0
       });
 
       return data;

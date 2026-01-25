@@ -7,6 +7,7 @@ import './ViewerMode.css';
 export default function ViewerMode() {
   const [image, setImage] = useState(null);
   const [timestamp, setTimestamp] = useState(null);
+  const [detection, setDetection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewerTimeout] = useState(storage.getViewerTimeout());
@@ -59,20 +60,26 @@ export default function ViewerMode() {
           debugLogger.log('ViewerMode', 'Image received', {
             timestamp: result.timestamp,
             ageSeconds: Math.round(imageAge / 1000),
-            isStale
+            isStale,
+            hasDetection: !!result.detection,
+            detectionSuccess: result.detection?.success,
+            cardCount: result.detection?.cards?.length || 0
           });
 
           if (isStale) {
             setImage(null);
             setTimestamp(null);
+            setDetection(null);
           } else {
             setImage(result.image);
             setTimestamp(result.timestamp);
+            setDetection(result.detection);
           }
         } else {
           debugLogger.log('ViewerMode', 'No image available');
           setImage(null);
           setTimestamp(null);
+          setDetection(null);
         }
 
         setError(null);
@@ -132,6 +139,30 @@ export default function ViewerMode() {
       <div className="viewer-container">
         {renderContent()}
       </div>
+
+      {image && detection && (
+        <div className="cards-section">
+          {detection.success && detection.cards && detection.cards.length > 0 ? (
+            <>
+              <h3>Detected Cards ({detection.cards.length})</h3>
+              <div className="cards-list">
+                {detection.cards.map((card, index) => (
+                  <div key={index} className="card-item">
+                    <span className="card-name">{card.class}</span>
+                    <span className="card-confidence">
+                      {Math.round(card.confidence * 100)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="no-cards-message">
+              <p>No cards detected</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
