@@ -38,7 +38,7 @@ export default function PinLogin({ onSuccess }) {
   return (
     <div className="pin-login">
       <div className="pin-login-container">
-        <h1>🔒 CardStreamer</h1>
+        <h1>CardStreamer</h1>
         <p>Enter PIN to continue</p>
 
         <form onSubmit={handleSubmit}>
@@ -56,7 +56,7 @@ export default function PinLogin({ onSuccess }) {
           {error && <div className="error">{error}</div>}
 
           <button type="submit" disabled={loading || !pin}>
-            {loading ? 'Verifying...' : 'Login'}
+            {loading ? 'Verifying...' : 'Continue'}
           </button>
         </form>
 

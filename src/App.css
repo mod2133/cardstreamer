@@ -1,13 +1,14 @@
 .app {
   min-height: 100vh;
-  background: #1a1a1a;
-  padding-bottom: 3rem; /* Space for debug panel */
+  background: #000;
 }
 
 .app-header {
-  background: #2a2a2a;
-  border-bottom: 2px solid #444;
-  padding: 1rem;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -17,39 +18,50 @@
 }
 
 .app-header h1 {
-  font-size: 1.5rem;
-  margin: 0;
-}
-
-.settings-button {
-  background: #646cff;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
-.settings-button:hover {
-  background: #535bf2;
+.hamburger-button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  align-items: center;
+}
+
+.hamburger-button span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-button:hover span {
+  background: #007AFF;
+}
+
+.header-spacer {
+  width: 44px;
 }
 
 .app-main {
-  padding: 2rem 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 0;
+  max-width: 100%;
 }
 
 @media (max-width: 600px) {
   .app-header h1 {
-    font-size: 1.2rem;
-  }
-
-  .settings-button {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .app-main {
-    padding: 1rem 0.5rem;
+    font-size: 0.95rem;
   }
 }

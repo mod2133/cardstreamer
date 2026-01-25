@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { api } from '../api/client';
 import { storage } from '../utils/storage';
 import { debugLogger } from '../utils/debug';
@@ -12,7 +12,47 @@ export default function CameraMode() {
   const [lastCapture, setLastCapture] = useState(null);
   const [autoCapture, setAutoCapture] = useState(storage.getAutoCapture());
   const [captureInterval, setCaptureInterval] = useState(storage.getCaptureInterval());
+  const [countdown, setCountdown] = useState(null);
   const intervalRef = useRef(null);
+  const countdownRef = useRef(null);
+  const nextCaptureTimeRef = useRef(null);
+  const captureIntervalRef = useRef(captureInterval);
+  const autoCaptureRef = useRef(autoCapture);
+
+  // Keep refs in sync
+  useEffect(() => {
+    captureIntervalRef.current = captureInterval;
+  }, [captureInterval]);
+
+  useEffect(() => {
+    autoCaptureRef.current = autoCapture;
+  }, [autoCapture]);
+
+  // Sync settings from storage periodically
+  useEffect(() => {
+    const syncInterval = setInterval(() => {
+      const newAutoCapture = storage.getAutoCapture();
+      const newCaptureInterval = storage.getCaptureInterval();
+
+      if (newAutoCapture !== autoCapture) {
+        debugLogger.log('CameraMode', 'Auto capture setting synced from storage', {
+          old: autoCapture,
+          new: newAutoCapture
+        });
+        setAutoCapture(newAutoCapture);
+      }
+
+      if (newCaptureInterval !== captureInterval) {
+        debugLogger.log('CameraMode', 'Capture interval synced from storage', {
+          old: captureInterval,
+          new: newCaptureInterval
+        });
+        setCaptureInterval(newCaptureInterval);
+      }
+    }, 500);
+
+    return () => clearInterval(syncInterval);
+  }, [autoCapture, captureInterval]);
 
   useEffect(() => {
     debugLogger.log('CameraMode', 'Initializing camera');
@@ -21,17 +61,34 @@ export default function CameraMode() {
     return () => {
       debugLogger.log('CameraMode', 'Cleaning up camera');
       stopCamera();
+      stopCountdown();
     };
   }, []);
 
   useEffect(() => {
+    debugLogger.log('CameraMode', 'AutoCapture effect triggered', {
+      autoCapture,
+      captureInterval,
+      hasStream: !!stream,
+      currentIntervalRef: intervalRef.current
+    });
+
     if (autoCapture && stream) {
       startAutoCapture();
     } else {
       stopAutoCapture();
+      stopCountdown();
+      setCountdown(null);
     }
 
-    return () => stopAutoCapture();
+    return () => {
+      debugLogger.log('CameraMode', 'AutoCapture effect cleanup', {
+        intervalRef: intervalRef.current
+      });
+      stopAutoCapture();
+      stopCountdown();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoCapture, captureInterval, stream]);
 
   const initCamera = async () => {
@@ -68,11 +125,14 @@ export default function CameraMode() {
     }
   };
 
-  const captureImage = async () => {
-    if (!videoRef.current || capturing) return;
+  const captureImage = useCallback(async () => {
+    if (!videoRef.current) {
+      debugLogger.log('CameraMode', 'Capture skipped - no video');
+      return;
+    }
 
+    debugLogger.log('CameraMode', 'Starting capture');
     setCapturing(true);
-    debugLogger.log('CameraMode', 'Capturing image');
 
     try {
       const canvas = canvasRef.current;
@@ -107,47 +167,85 @@ export default function CameraMode() {
     } finally {
       setCapturing(false);
     }
-  };
+  }, []);
 
-  const startAutoCapture = () => {
+  const startAutoCapture = useCallback(() => {
+    const interval = captureIntervalRef.current;
+
     debugLogger.log('CameraMode', 'Starting auto-capture', {
-      intervalSeconds: captureInterval
+      intervalSeconds: interval
     });
 
     stopAutoCapture();
+    stopCountdown();
 
+    // Take first picture immediately
+    captureImage();
+
+    // Set up next capture time
+    nextCaptureTimeRef.current = Date.now() + (interval * 1000);
+    setCountdown(interval);
+
+    debugLogger.log('CameraMode', 'Setting up interval timer', {
+      intervalMs: interval * 1000
+    });
+
+    // Start interval for captures
     intervalRef.current = setInterval(() => {
-      debugLogger.log('CameraMode', 'Auto-capture triggered');
+      debugLogger.log('CameraMode', 'Auto-capture interval fired!', {
+        intervalSeconds: captureIntervalRef.current,
+        autoCaptureEnabled: autoCaptureRef.current
+      });
       captureImage();
-    }, captureInterval * 1000);
-  };
+      const currentInterval = captureIntervalRef.current;
+      nextCaptureTimeRef.current = Date.now() + (currentInterval * 1000);
+      setCountdown(currentInterval);
+    }, interval * 1000);
 
-  const stopAutoCapture = () => {
+    debugLogger.log('CameraMode', 'Interval timer created', {
+      intervalId: intervalRef.current
+    });
+
+    // Start countdown timer
+    startCountdown();
+  }, [captureImage]);
+
+  const startCountdown = useCallback(() => {
+    stopCountdown();
+
+    debugLogger.log('CameraMode', 'Starting countdown timer');
+
+    countdownRef.current = setInterval(() => {
+      if (nextCaptureTimeRef.current) {
+        const remaining = Math.ceil((nextCaptureTimeRef.current - Date.now()) / 1000);
+        if (remaining >= 0) {
+          setCountdown(remaining);
+        }
+      }
+    }, 100); // Update every 100ms for smooth countdown
+  }, []);
+
+  const stopCountdown = useCallback(() => {
+    if (countdownRef.current) {
+      debugLogger.log('CameraMode', 'Stopping countdown timer');
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+  }, []);
+
+  const stopAutoCapture = useCallback(() => {
     if (intervalRef.current) {
-      debugLogger.log('CameraMode', 'Stopping auto-capture');
+      debugLogger.log('CameraMode', 'Stopping auto-capture', {
+        intervalId: intervalRef.current
+      });
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-  };
-
-  const toggleAutoCapture = () => {
-    const newValue = !autoCapture;
-    setAutoCapture(newValue);
-    storage.setAutoCapture(newValue);
-    debugLogger.log('CameraMode', 'Auto-capture toggled', { enabled: newValue });
-  };
-
-  const handleIntervalChange = (e) => {
-    const value = parseInt(e.target.value) || 10;
-    setCaptureInterval(value);
-    storage.setCaptureInterval(value);
-    debugLogger.log('CameraMode', 'Capture interval changed', { seconds: value });
-  };
+    nextCaptureTimeRef.current = null;
+  }, []);
 
   return (
     <div className="camera-mode">
-      <h2>📷 Camera Mode</h2>
-
       <div className="camera-container">
         <video
           ref={videoRef}
@@ -157,6 +255,37 @@ export default function CameraMode() {
           className="camera-video"
         />
         <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+        {lastCapture && (
+          <div className="last-capture-overlay">
+            <img src={lastCapture.image} alt="Last capture" />
+          </div>
+        )}
+
+        {autoCapture && countdown !== null && (
+          <div className="auto-capture-indicator">
+            <div className="countdown-ring">
+              <svg className="countdown-svg" viewBox="0 0 36 36">
+                <circle
+                  className="countdown-circle-bg"
+                  cx="18"
+                  cy="18"
+                  r="16"
+                />
+                <circle
+                  className="countdown-circle"
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  style={{
+                    strokeDasharray: `${(countdown / captureInterval) * 100} 100`
+                  }}
+                />
+              </svg>
+              <div className="countdown-text">{countdown}s</div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="camera-controls">
@@ -164,44 +293,16 @@ export default function CameraMode() {
           onClick={captureImage}
           disabled={capturing || !stream}
           className="capture-button"
+          aria-label="Take picture"
         >
-          {capturing ? 'Capturing...' : '📸 Take Picture'}
+          <div className="capture-button-inner"></div>
         </button>
-
-        <div className="auto-capture-controls">
-          <label>
-            <input
-              type="checkbox"
-              checked={autoCapture}
-              onChange={toggleAutoCapture}
-            />
-            <span>Auto Capture</span>
-          </label>
-
-          {autoCapture && (
-            <label>
-              <span>Interval:</span>
-              <input
-                type="number"
-                min="1"
-                max="300"
-                value={captureInterval}
-                onChange={handleIntervalChange}
-                className="interval-input"
-              />
-              <span>seconds</span>
-            </label>
-          )}
-        </div>
+        {lastCapture && (
+          <div className="capture-time">
+            {new Date(lastCapture.timestamp).toLocaleTimeString()}
+          </div>
+        )}
       </div>
-
-      {lastCapture && (
-        <div className="last-capture">
-          <h3>Last Capture</h3>
-          <img src={lastCapture.image} alt="Last capture" />
-          <p>{new Date(lastCapture.timestamp).toLocaleTimeString()}</p>
-        </div>
-      )}
     </div>
   );
 }

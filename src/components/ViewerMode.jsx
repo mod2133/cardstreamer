@@ -100,7 +100,7 @@ export default function ViewerMode() {
     if (error) {
       return (
         <div className="viewer-placeholder error">
-          <p>⚠️ Connection Error</p>
+          <p>Connection Error</p>
           <p className="error-message">{error}</p>
         </div>
       );
@@ -109,10 +109,9 @@ export default function ViewerMode() {
     if (!image) {
       return (
         <div className="viewer-placeholder no-image">
-          <p>📷</p>
-          <p>No recent picture taken</p>
+          <p>No Recent Picture</p>
           <p className="timeout-info">
-            Waiting for camera... (timeout: {viewerTimeout}s)
+            Waiting for camera
           </p>
         </div>
       );
@@ -130,16 +129,9 @@ export default function ViewerMode() {
 
   return (
     <div className="viewer-mode">
-      <h2>👀 Viewer Mode</h2>
-      <div className="viewer-info">
-        Auto-refreshing every {pollInterval / 1000} seconds
-      </div>
       <div className="viewer-container">
         {renderContent()}
       </div>
-      <button onClick={fetchImage} className="refresh-button">
-        🔄 Refresh Now
-      </button>
     </div>
   );
 }

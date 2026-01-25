@@ -8,6 +8,8 @@ export default function Settings({ onClose, onModeChange }) {
   const [autoCapture, setAutoCapture] = useState(storage.getAutoCapture());
   const [captureInterval, setCaptureInterval] = useState(storage.getCaptureInterval());
   const [viewerTimeout, setViewerTimeout] = useState(storage.getViewerTimeout());
+  const [showDebugLogs, setShowDebugLogs] = useState(false);
+  const [logs, setLogs] = useState(debugLogger.getFormattedLogs());
 
   useEffect(() => {
     debugLogger.log('Settings', 'Settings opened', {
@@ -16,104 +18,134 @@ export default function Settings({ onClose, onModeChange }) {
       captureInterval,
       viewerTimeout
     });
+
+    const interval = setInterval(() => {
+      setLogs(debugLogger.getFormattedLogs());
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const handleSave = () => {
-    debugLogger.log('Settings', 'Saving settings', {
-      mode,
-      autoCapture,
-      captureInterval,
-      viewerTimeout
-    });
-
-    storage.setMode(mode);
-    storage.setAutoCapture(autoCapture);
-    storage.setCaptureInterval(captureInterval);
-    storage.setViewerTimeout(viewerTimeout);
-
-    onModeChange(mode);
-    onClose();
+  const handleModeChange = (newMode) => {
+    setMode(newMode);
+    storage.setMode(newMode);
+    onModeChange(newMode);
+    debugLogger.log('Settings', 'Mode changed', { mode: newMode });
   };
 
-  const handleLogout = () => {
-    debugLogger.log('Settings', 'Logging out');
-    storage.clearPinVerified();
-    window.location.reload();
+  const handleAutoCaptureToggle = () => {
+    const newValue = !autoCapture;
+    setAutoCapture(newValue);
+    storage.setAutoCapture(newValue);
+    debugLogger.log('Settings', 'Auto capture toggled', { enabled: newValue });
+  };
+
+  const handleCaptureIntervalChange = (e) => {
+    const value = parseInt(e.target.value) || 10;
+    setCaptureInterval(value);
+    storage.setCaptureInterval(value);
+    debugLogger.log('Settings', 'Capture interval changed', { seconds: value });
+  };
+
+  const handleViewerTimeoutChange = (e) => {
+    const value = parseInt(e.target.value) || 60;
+    setViewerTimeout(value);
+    storage.setViewerTimeout(value);
+    debugLogger.log('Settings', 'Viewer timeout changed', { seconds: value });
+  };
+
+  const handleClearLogs = () => {
+    debugLogger.clear();
+    setLogs('');
   };
 
   return (
     <div className="settings-overlay" onClick={onClose}>
       <div className="settings-panel" onClick={(e) => e.stopPropagation()}>
-        <h2>⚙️ Settings</h2>
-
-        <div className="settings-section">
-          <label>
-            <strong>Mode</strong>
-            <select value={mode} onChange={(e) => setMode(e.target.value)}>
-              <option value="viewer">👀 Viewer</option>
-              <option value="camera">📷 Camera</option>
-            </select>
-          </label>
-          <p className="help-text">
-            Viewer: See images from camera devices<br />
-            Camera: Take pictures to share
-          </p>
+        <div className="settings-header">
+          <button onClick={onClose} className="close-button">Done</button>
+          <h2>Settings</h2>
+          <div className="header-spacer"></div>
         </div>
 
-        {mode === 'camera' && (
+        <div className="settings-content">
           <div className="settings-section">
-            <label>
-              <strong>Auto Capture</strong>
+            <div className="settings-row">
+              <span className="settings-label">Mode</span>
               <select
-                value={autoCapture ? 'true' : 'false'}
-                onChange={(e) => setAutoCapture(e.target.value === 'true')}
+                value={mode}
+                onChange={(e) => handleModeChange(e.target.value)}
+                className="ios-select"
               >
-                <option value="false">Off</option>
-                <option value="true">On</option>
+                <option value="viewer">Viewer</option>
+                <option value="camera">Camera</option>
               </select>
-            </label>
+            </div>
+          </div>
 
-            {autoCapture && (
-              <label>
-                <strong>Capture Interval (seconds)</strong>
+          {mode === 'camera' && (
+            <div className="settings-section">
+              <div className="settings-row">
+                <span className="settings-label">Auto Capture</span>
+                <label className="ios-switch">
+                  <input
+                    type="checkbox"
+                    checked={autoCapture}
+                    onChange={handleAutoCaptureToggle}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </div>
+
+              {autoCapture && (
+                <div className="settings-row">
+                  <span className="settings-label">Capture Interval</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="300"
+                    value={captureInterval}
+                    onChange={handleCaptureIntervalChange}
+                    className="ios-input"
+                  />
+                  <span className="settings-unit">sec</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {mode === 'viewer' && (
+            <div className="settings-section">
+              <div className="settings-row">
+                <span className="settings-label">Image Timeout</span>
                 <input
                   type="number"
-                  min="1"
-                  max="300"
-                  value={captureInterval}
-                  onChange={(e) => setCaptureInterval(parseInt(e.target.value) || 10)}
+                  min="5"
+                  max="600"
+                  value={viewerTimeout}
+                  onChange={handleViewerTimeoutChange}
+                  className="ios-input"
                 />
-              </label>
+                <span className="settings-unit">sec</span>
+              </div>
+            </div>
+          )}
+
+          <div className="settings-section">
+            <div className="settings-row clickable" onClick={() => setShowDebugLogs(!showDebugLogs)}>
+              <span className="settings-label">Debug Logs</span>
+              <span className="chevron">{showDebugLogs ? '▼' : '▶'}</span>
+            </div>
+            {showDebugLogs && (
+              <div className="debug-logs-container">
+                <div className="debug-logs-header">
+                  <span className="log-count">{debugLogger.getLogs().length} entries</span>
+                  <button onClick={handleClearLogs} className="clear-logs-button">Clear</button>
+                </div>
+                <pre className="debug-logs">{logs || 'No logs yet...'}</pre>
+              </div>
             )}
           </div>
-        )}
-
-        {mode === 'viewer' && (
-          <div className="settings-section">
-            <label>
-              <strong>Image Timeout (seconds)</strong>
-              <input
-                type="number"
-                min="5"
-                max="600"
-                value={viewerTimeout}
-                onChange={(e) => setViewerTimeout(parseInt(e.target.value) || 60)}
-              />
-            </label>
-            <p className="help-text">
-              Show "no recent picture" message if no new image after this time
-            </p>
-          </div>
-        )}
-
-        <div className="settings-actions">
-          <button onClick={handleSave} className="primary">
-            Save & Close
-          </button>
-          <button onClick={onClose}>Cancel</button>
-          <button onClick={handleLogout} className="danger">
-            Logout
-          </button>
         </div>
       </div>
     </div>

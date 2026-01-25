@@ -5,15 +5,14 @@
 }
 
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  line-height: 1.4;
   font-weight: 400;
+  font-size: 16px;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #1a1a1a;
+  color: #fff;
+  background-color: #000;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -36,25 +35,25 @@ body {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: 10px;
+  border: none;
   padding: 0.6em 1.2em;
-  font-size: 1em;
+  font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #1c1c1e;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.2s;
   color: white;
 }
 
 button:hover {
-  border-color: #646cff;
+  opacity: 0.8;
 }
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: none;
 }
 
 button:disabled {
@@ -63,27 +62,28 @@ button:disabled {
 }
 
 input {
-  border-radius: 8px;
-  border: 1px solid #646cff;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.6em 1em;
+  font-size: 0.9rem;
   font-family: inherit;
-  background-color: #2a2a2a;
+  background-color: #1c1c1e;
   color: white;
   width: 100%;
 }
 
 input:focus {
-  outline: 2px solid #646cff;
+  outline: none;
+  border-color: #007AFF;
 }
 
 select {
-  border-radius: 8px;
-  border: 1px solid #646cff;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.6em 1em;
+  font-size: 0.9rem;
   font-family: inherit;
-  background-color: #2a2a2a;
+  background-color: #1c1c1e;
   color: white;
   width: 100%;
   cursor: pointer;
@@ -92,41 +92,8 @@ select {
 label {
   display: block;
   margin-bottom: 0.5em;
-  font-weight: 500;
-}
-
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.debug {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 2rem;
-  text-align: left;
-  font-family: 'Courier New', monospace;
-  font-size: 0.85em;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.debug h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1em;
-  color: #888;
-}
-
-.debug pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  color: #aaa;
+  font-weight: 400;
+  font-size: 0.9rem;
 }
 
 /* Responsive */

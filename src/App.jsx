@@ -3,7 +3,6 @@ import PinLogin from './components/PinLogin';
 import Settings from './components/Settings';
 import CameraMode from './components/CameraMode';
 import ViewerMode from './components/ViewerMode';
-import DebugPanel from './components/DebugPanel';
 import { storage } from './utils/storage';
 import { debugLogger } from './utils/debug';
 import './App.css';
@@ -37,13 +36,17 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>📱 CardStreamer</h1>
         <button
           onClick={() => setShowSettings(true)}
-          className="settings-button"
+          className="hamburger-button"
+          aria-label="Settings"
         >
-          ⚙️ Settings
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
+        <h1>CardStreamer</h1>
+        <div className="header-spacer"></div>
       </header>
 
       <main className="app-main">
@@ -56,8 +59,6 @@ function App() {
           onModeChange={handleModeChange}
         />
       )}
-
-      <DebugPanel />
     </div>
   );
 }

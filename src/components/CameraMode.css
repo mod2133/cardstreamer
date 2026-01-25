@@ -1,105 +1,173 @@
 .camera-mode {
-  padding: 1rem;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.camera-mode h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 56px);
+  background: #000;
 }
 
 .camera-container {
-  background: #000;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
+  flex: 1;
   position: relative;
-  width: 100%;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
+  background: #000;
+  overflow: hidden;
 }
 
 .camera-video {
   width: 100%;
-  height: auto;
-  display: block;
-  aspect-ratio: 4/3;
+  height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.last-capture-overlay {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.last-capture-overlay img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.auto-capture-indicator {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 50%;
+  padding: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.countdown-ring {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.countdown-circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 2;
+}
+
+.countdown-circle {
+  fill: none;
+  stroke: #007AFF;
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.1s linear;
+}
+
+.countdown-text {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .camera-controls {
+  padding: 2rem 1rem;
+  background: #000;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 120px;
 }
 
 .capture-button {
-  background: #646cff;
-  padding: 1.25rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  width: 100%;
-  border: none;
-}
-
-.capture-button:hover:not(:disabled) {
-  background: #535bf2;
-}
-
-.auto-capture-controls {
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.auto-capture-controls label {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 3px solid #fff;
+  padding: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
 }
 
-.auto-capture-controls input[type="checkbox"] {
-  width: auto;
-  cursor: pointer;
+.capture-button:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
-.interval-input {
-  width: 80px;
-  margin: 0 0.5rem;
-  padding: 0.5rem;
+.capture-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.last-capture {
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 12px;
-  padding: 1.5rem;
+.capture-button-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ff3b30;
+  transition: all 0.2s ease;
+}
+
+.capture-button:active:not(:disabled) .capture-button-inner {
+  background: #ff453a;
+}
+
+.capture-time {
+  font-size: 0.8rem;
+  color: #8e8e93;
   text-align: center;
 }
 
-.last-capture h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-  color: #888;
-}
+@media (max-width: 600px) {
+  .camera-controls {
+    padding: 1.5rem 1rem;
+    min-height: 100px;
+  }
 
-.last-capture img {
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-}
+  .capture-button {
+    width: 64px;
+    height: 64px;
+  }
 
-.last-capture p {
-  color: #aaa;
-  font-size: 0.9rem;
+  .last-capture-overlay {
+    width: 70px;
+    height: 52.5px;
+  }
+
+  .auto-capture-indicator {
+    padding: 0.4rem;
+  }
+
+  .countdown-ring {
+    width: 50px;
+    height: 50px;
+  }
+
+  .countdown-text {
+    font-size: 0.8rem;
+  }
 }

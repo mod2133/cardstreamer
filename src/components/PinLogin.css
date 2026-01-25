@@ -3,27 +3,27 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: #000;
 }
 
 .pin-login-container {
-  background: #2a2a2a;
-  padding: 3rem;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 2rem;
   max-width: 400px;
   width: 90%;
   text-align: center;
 }
 
 .pin-login h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
+  letter-spacing: -0.03em;
 }
 
 .pin-login p {
-  color: #aaa;
+  color: #8e8e93;
   margin-bottom: 2rem;
+  font-size: 0.9rem;
 }
 
 .pin-login form {
@@ -33,37 +33,52 @@
 }
 
 .pin-login input {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   text-align: center;
   letter-spacing: 0.5em;
-  padding: 1rem;
+  padding: 0.875rem;
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.pin-login input:focus {
+  outline: none;
+  border-color: #007AFF;
 }
 
 .pin-login button {
-  background: #646cff;
+  background: #007AFF;
   border: none;
-  padding: 1rem;
-  font-size: 1.1rem;
+  padding: 0.875rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  border-radius: 10px;
   margin-top: 0.5rem;
 }
 
 .pin-login button:hover:not(:disabled) {
-  background: #535bf2;
+  background: #0066CC;
+}
+
+.pin-login button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .pin-login .error {
-  color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.1);
+  color: #ff453a;
+  background: rgba(255, 69, 58, 0.1);
   padding: 0.75rem;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 69, 58, 0.2);
 }
 
 .pin-login .hint {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #444;
-  color: #666;
-  font-size: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #636366;
+  font-size: 0.85rem;
 }
