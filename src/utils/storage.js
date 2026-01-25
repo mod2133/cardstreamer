@@ -10,20 +10,20 @@ const STORAGE_KEYS = {
 };
 
 export const storage = {
-  // PIN verification
+  // PIN verification - uses sessionStorage to clear on browser close
   getPinVerified() {
-    const value = localStorage.getItem(STORAGE_KEYS.PIN_VERIFIED);
-    debugLogger.log('Storage', 'Get PIN verified', { value });
+    const value = sessionStorage.getItem(STORAGE_KEYS.PIN_VERIFIED);
+    debugLogger.log('Storage', 'Get PIN verified', { value, storage: 'session' });
     return value === 'true';
   },
 
   setPinVerified(verified) {
-    localStorage.setItem(STORAGE_KEYS.PIN_VERIFIED, verified.toString());
-    debugLogger.log('Storage', 'Set PIN verified', { verified });
+    sessionStorage.setItem(STORAGE_KEYS.PIN_VERIFIED, verified.toString());
+    debugLogger.log('Storage', 'Set PIN verified', { verified, storage: 'session' });
   },
 
   clearPinVerified() {
-    localStorage.removeItem(STORAGE_KEYS.PIN_VERIFIED);
+    sessionStorage.removeItem(STORAGE_KEYS.PIN_VERIFIED);
     debugLogger.log('Storage', 'Clear PIN verified');
   },
 
