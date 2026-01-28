@@ -14,22 +14,22 @@ export default function PinLogin({ onSuccess }) {
     setError('');
     setLoading(true);
 
-    debugLogger.log('PinLogin', 'Submitting PIN');
+    debugLogger.info('PinLogin', 'Submitting PIN');
 
     try {
       const result = await api.verifyPin(pin);
 
       if (result.success) {
-        debugLogger.log('PinLogin', 'PIN verified successfully');
+        debugLogger.info('PinLogin', 'PIN verified successfully');
         storage.setPinVerified(true);
         onSuccess();
       } else {
         setError('Invalid PIN');
-        debugLogger.log('PinLogin', 'Invalid PIN entered');
+        debugLogger.warn('PinLogin', 'Invalid PIN entered');
       }
     } catch (err) {
       setError('Failed to verify PIN. Please try again.');
-      debugLogger.log('PinLogin', 'PIN verification failed', { error: err.message });
+      debugLogger.error('PinLogin', 'PIN verification failed', { error: err.message });
     } finally {
       setLoading(false);
     }
@@ -59,10 +59,6 @@ export default function PinLogin({ onSuccess }) {
             {loading ? 'Verifying...' : 'Continue'}
           </button>
         </form>
-
-        <div className="hint">
-          Default PIN: 1234
-        </div>
       </div>
     </div>
   );

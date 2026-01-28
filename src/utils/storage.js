@@ -7,7 +7,8 @@ const STORAGE_KEYS = {
   AUTO_CAPTURE: 'auto_capture',
   CAPTURE_INTERVAL: 'capture_interval',
   VIEWER_TIMEOUT: 'viewer_timeout',
-  CARD_DETECTION: 'card_detection'
+  CARD_DETECTION: 'card_detection',
+  CAMERA_TIMEZONE: 'camera_timezone'
 };
 
 export const storage = {
@@ -88,5 +89,17 @@ export const storage = {
   setCardDetection(enabled) {
     localStorage.setItem(STORAGE_KEYS.CARD_DETECTION, enabled.toString());
     debugLogger.log('Storage', 'Set card detection', { enabled });
+  },
+
+  // Camera timezone
+  getCameraTimezone() {
+    const value = localStorage.getItem(STORAGE_KEYS.CAMERA_TIMEZONE) || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    debugLogger.log('Storage', 'Get camera timezone', { value });
+    return value;
+  },
+
+  setCameraTimezone(timezone) {
+    localStorage.setItem(STORAGE_KEYS.CAMERA_TIMEZONE, timezone);
+    debugLogger.log('Storage', 'Set camera timezone', { timezone });
   }
 };

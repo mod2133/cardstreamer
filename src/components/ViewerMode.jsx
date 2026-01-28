@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { api } from '../api/client';
 import { storage } from '../utils/storage';
 import { debugLogger } from '../utils/debug';
+import { getCardName } from '../utils/cardNames';
 import './ViewerMode.css';
 
 export default function ViewerMode() {
@@ -11,11 +12,12 @@ export default function ViewerMode() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewerTimeout] = useState(storage.getViewerTimeout());
+  const [cameraTimezone] = useState(storage.getCameraTimezone());
   const intervalRef = useRef(null);
   const pollInterval = 2000; // Poll every 2 seconds
 
   useEffect(() => {
-    debugLogger.log('ViewerMode', 'Initializing viewer', {
+    debugLogger.info('ViewerMode', 'Initializing viewer', {
       pollInterval,
       viewerTimeout
     });
@@ -24,13 +26,13 @@ export default function ViewerMode() {
     startPolling();
 
     return () => {
-      debugLogger.log('ViewerMode', 'Cleaning up viewer');
+      debugLogger.info('ViewerMode', 'Cleaning up viewer');
       stopPolling();
     };
   }, []);
 
   const startPolling = () => {
-    debugLogger.log('ViewerMode', 'Starting polling', { intervalMs: pollInterval });
+    debugLogger.verbose('ViewerMode', 'Starting polling', { intervalMs: pollInterval });
 
     stopPolling();
 
@@ -41,7 +43,7 @@ export default function ViewerMode() {
 
   const stopPolling = () => {
     if (intervalRef.current) {
-      debugLogger.log('ViewerMode', 'Stopping polling');
+      debugLogger.verbose('ViewerMode', 'Stopping polling');
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
@@ -49,7 +51,7 @@ export default function ViewerMode() {
 
   const fetchImage = async () => {
     try {
-      debugLogger.log('ViewerMode', 'Fetching image');
+      debugLogger.verbose('ViewerMode', 'Fetching image');
       const result = await api.getLatestImage();
 
       if (result.success) {
@@ -57,7 +59,7 @@ export default function ViewerMode() {
           const imageAge = Date.now() - new Date(result.timestamp).getTime();
           const isStale = imageAge > (viewerTimeout * 1000);
 
-          debugLogger.log('ViewerMode', 'Image received', {
+          debugLogger.verbose('ViewerMode', 'Image received', {
             timestamp: result.timestamp,
             ageSeconds: Math.round(imageAge / 1000),
             isStale,
@@ -76,7 +78,7 @@ export default function ViewerMode() {
             setDetection(result.detection);
           }
         } else {
-          debugLogger.log('ViewerMode', 'No image available');
+          debugLogger.verbose('ViewerMode', 'No image available');
           setImage(null);
           setTimestamp(null);
           setDetection(null);
@@ -87,7 +89,7 @@ export default function ViewerMode() {
         throw new Error('Failed to fetch image');
       }
     } catch (err) {
-      debugLogger.log('ViewerMode', 'Fetch error', { error: err.message });
+      debugLogger.error('ViewerMode', 'Fetch error', { error: err.message });
       setError(err.message);
     } finally {
       setLoading(false);
@@ -124,11 +126,25 @@ export default function ViewerMode() {
       );
     }
 
+    const date = new Date(timestamp);
+    const cameraTime = date.toLocaleTimeString('en-US', {
+      timeZone: cameraTimezone,
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    const localTime = date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
     return (
       <>
         <img src={image} alt="Latest capture" className="viewer-image" />
         <div className="viewer-timestamp">
-          {new Date(timestamp).toLocaleString()}
+          <div>Camera: {cameraTime}</div>
+          <div>Your time: {localTime}</div>
         </div>
       </>
     );
@@ -140,26 +156,58 @@ export default function ViewerMode() {
         {renderContent()}
       </div>
 
-      {image && detection && (
+      {image && (
         <div className="cards-section">
-          {detection.success && detection.cards && detection.cards.length > 0 ? (
+          {!detection && (
+            <div className="detection-status info">
+              <p className="status-message">
+                Card detection was not enabled for this capture
+              </p>
+            </div>
+          )}
+
+          {detection && !detection.success && (
+            <div className="detection-status error">
+              <p className="status-title">Detection Failed</p>
+              <p className="status-message">
+                {detection.error || 'Unable to detect cards in this image'}
+              </p>
+              <p className="status-hint">
+                Check Settings → Debug Logs for details
+              </p>
+            </div>
+          )}
+
+          {detection && detection.success && detection.cards.length === 0 && (
+            <div className="detection-status warning">
+              <p className="status-message">
+                No playing cards detected in this image
+              </p>
+              <p className="status-hint">
+                Ensure cards are clearly visible and well-lit
+              </p>
+            </div>
+          )}
+
+          {detection && detection.success && detection.cards.length > 0 && (
             <>
               <h3>Detected Cards ({detection.cards.length})</h3>
               <div className="cards-list">
                 {detection.cards.map((card, index) => (
                   <div key={index} className="card-item">
-                    <span className="card-name">{card.class}</span>
+                    <span className="card-name">{getCardName(card.class)}</span>
                     <span className="card-confidence">
                       {Math.round(card.confidence * 100)}%
                     </span>
                   </div>
                 ))}
               </div>
+              {detection.totalDetections > detection.cards.length && (
+                <p className="detection-note">
+                  {detection.totalDetections - detection.cards.length} duplicate(s) removed
+                </p>
+              )}
             </>
-          ) : (
-            <div className="no-cards-message">
-              <p>No cards detected</p>
-            </div>
           )}
         </div>
       )}

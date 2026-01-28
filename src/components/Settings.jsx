@@ -8,17 +8,18 @@ export default function Settings({ onClose, onModeChange }) {
   const [autoCapture, setAutoCapture] = useState(storage.getAutoCapture());
   const [captureInterval, setCaptureInterval] = useState(storage.getCaptureInterval());
   const [viewerTimeout, setViewerTimeout] = useState(storage.getViewerTimeout());
-  const [cardDetection, setCardDetection] = useState(storage.getCardDetection());
+  const [cameraTimezone, setCameraTimezone] = useState(storage.getCameraTimezone());
+  const [debugLevel, setDebugLevel] = useState(debugLogger.getLogLevel());
   const [showDebugLogs, setShowDebugLogs] = useState(false);
   const [logs, setLogs] = useState(debugLogger.getFormattedLogs());
 
   useEffect(() => {
-    debugLogger.log('Settings', 'Settings opened', {
+    debugLogger.info('Settings', 'Settings opened', {
       mode,
       autoCapture,
       captureInterval,
       viewerTimeout,
-      cardDetection
+      cameraTimezone
     });
 
     const interval = setInterval(() => {
@@ -32,35 +33,41 @@ export default function Settings({ onClose, onModeChange }) {
     setMode(newMode);
     storage.setMode(newMode);
     onModeChange(newMode);
-    debugLogger.log('Settings', 'Mode changed', { mode: newMode });
+    debugLogger.info('Settings', 'Mode changed', { mode: newMode });
   };
 
   const handleAutoCaptureToggle = () => {
     const newValue = !autoCapture;
     setAutoCapture(newValue);
     storage.setAutoCapture(newValue);
-    debugLogger.log('Settings', 'Auto capture toggled', { enabled: newValue });
+    debugLogger.info('Settings', 'Auto capture toggled', { enabled: newValue });
   };
 
   const handleCaptureIntervalChange = (e) => {
     const value = parseInt(e.target.value) || 10;
     setCaptureInterval(value);
     storage.setCaptureInterval(value);
-    debugLogger.log('Settings', 'Capture interval changed', { seconds: value });
+    debugLogger.info('Settings', 'Capture interval changed', { seconds: value });
   };
 
   const handleViewerTimeoutChange = (e) => {
     const value = parseInt(e.target.value) || 60;
     setViewerTimeout(value);
     storage.setViewerTimeout(value);
-    debugLogger.log('Settings', 'Viewer timeout changed', { seconds: value });
+    debugLogger.info('Settings', 'Viewer timeout changed', { seconds: value });
   };
 
-  const handleCardDetectionToggle = () => {
-    const newValue = !cardDetection;
-    setCardDetection(newValue);
-    storage.setCardDetection(newValue);
-    debugLogger.log('Settings', 'Card detection toggled', { enabled: newValue });
+  const handleCameraTimezoneChange = (e) => {
+    const newTimezone = e.target.value;
+    setCameraTimezone(newTimezone);
+    storage.setCameraTimezone(newTimezone);
+    debugLogger.info('Settings', 'Camera timezone changed', { timezone: newTimezone });
+  };
+
+  const handleDebugLevelChange = (e) => {
+    const level = parseInt(e.target.value);
+    setDebugLevel(level);
+    debugLogger.setLogLevel(level);
   };
 
   const handleClearLogs = () => {
@@ -89,20 +96,6 @@ export default function Settings({ onClose, onModeChange }) {
                 <option value="viewer">Viewer</option>
                 <option value="camera">Camera</option>
               </select>
-            </div>
-          </div>
-
-          <div className="settings-section">
-            <div className="settings-row">
-              <span className="settings-label">Card Detection</span>
-              <label className="ios-switch">
-                <input
-                  type="checkbox"
-                  checked={cardDetection}
-                  onChange={handleCardDetectionToggle}
-                />
-                <span className="slider"></span>
-              </label>
             </div>
           </div>
 
@@ -151,10 +144,47 @@ export default function Settings({ onClose, onModeChange }) {
                 />
                 <span className="settings-unit">sec</span>
               </div>
+              <div className="settings-row">
+                <span className="settings-label">Camera Timezone</span>
+                <select
+                  value={cameraTimezone}
+                  onChange={handleCameraTimezoneChange}
+                  className="ios-select"
+                >
+                  <option value="America/New_York">Eastern (ET)</option>
+                  <option value="America/Chicago">Central (CT)</option>
+                  <option value="America/Denver">Mountain (MT)</option>
+                  <option value="America/Los_Angeles">Pacific (PT)</option>
+                  <option value="Europe/London">London (GMT)</option>
+                  <option value="Europe/Paris">Paris (CET)</option>
+                  <option value="Europe/Berlin">Berlin (CET)</option>
+                  <option value="Europe/Amsterdam">Amsterdam (CET)</option>
+                  <option value="Asia/Tokyo">Tokyo (JST)</option>
+                  <option value="Asia/Shanghai">Shanghai (CST)</option>
+                  <option value="Asia/Dubai">Dubai (GST)</option>
+                  <option value="Asia/Makassar">Bali (WITA)</option>
+                  <option value="Australia/Sydney">Sydney (AEST)</option>
+                  <option value="Pacific/Auckland">Auckland (NZST)</option>
+                </select>
+              </div>
             </div>
           )}
 
           <div className="settings-section">
+            <div className="settings-row">
+              <span className="settings-label">Debug Level</span>
+              <select
+                value={debugLevel}
+                onChange={handleDebugLevelChange}
+                className="ios-select"
+              >
+                <option value="0">Errors Only</option>
+                <option value="1">Warnings</option>
+                <option value="2">Info (Default)</option>
+                <option value="3">Verbose</option>
+              </select>
+            </div>
+
             <div className="settings-row clickable" onClick={() => setShowDebugLogs(!showDebugLogs)}>
               <span className="settings-label">Debug Logs</span>
               <span className="chevron">{showDebugLogs ? '▼' : '▶'}</span>

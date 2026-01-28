@@ -45,7 +45,7 @@ function App() {
           <span></span>
           <span></span>
         </button>
-        <h1>CardStreamer</h1>
+        <h1>{mode === 'camera' ? 'Camera' : 'Viewer'}</h1>
         <div className="header-spacer"></div>
       </header>
 
